@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ultimate Pro Streaming Player</title>
+
+  <!-- Preload important resources -->
+  <link rel="preload" href="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" as="image">
+  <link rel="preconnect" href="https://m3u8x2.cloudycx.net/" crossorigin>
+
+  <!-- JWPlayer latest version -->
+  <script src="https://content.jwplatform.com/libraries/SAHhwvZq.js" defer></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: #ffffffcc;
+      background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1c1c1c);
+      background-size: 400% 400%;
+      animation: gradientMove 15s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    #loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 100;
+      font-size: 18px;
+      color: #ffffff;
+    }
+
+    .spinner {
+      width: 70px;
+      height: 70px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #00c6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #player {
+      width: 90%;
+      max-width: 960px;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0, 198, 255, 0.7);
+      overflow: hidden;
+      display: none;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 14px;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    .footer:hover {
+      opacity: 1;
+      text-shadow: 0 0 10px #00c6ff, 0 0 20px #00c6ff;
+    }
+
+    .footer a {
+      color: #00c6ff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="spinner"></div>
+  <div>Fetching live stream...</div>
+</div>
+
+<!-- JWPlayer container -->
+<div id="player"></div>
+
+<!-- Stylish Footer with link to Telegram -->
+<div class="footer">
+  &copy; 2025 Streaming Pro | Powered by <a href="https://t.me/waspros" target="_blank">waspros</a>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const playerInstance = jwplayer("player").setup({
+      file: "https://m3u8x2.cloudycx.net/media/hls/files/index.m3u8",
+      type: "hls",
+      width: "100%",
+      aspectratio: "16:9",
+      autostart: true,
+      controls: true, // Use default controls
+      mute: false,
+      preload: "auto",
+      primary: "html5",
+      stretching: "uniform",
+      logo: {
+        file: "https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png", // Your logo
+        position: "top-right",
+        margin: 8
+      },
+      abouttext: "Powered by Streaming",
+      aboutlink: ""
+    });
+
+    // Handle player ready state
+    playerInstance.on('ready', function () {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('player').style.display = 'block';
+    });
+
+    // Error handler
+    playerInstance.on('error', function (event) {
+      alert('Streaming Error: ' + event.message);
+      attemptReconnect();
+    });
+
+    // Auto reconnect functionality
+    let reconnectAttempts = 0;
+    const maxReconnects = 3;
+    function attemptReconnect() {
+      if (reconnectAttempts < maxReconnects) {
+        reconnectAttempts++;
+        setTimeout(function () {
+          playerInstance.play();
+          console.log('Attempting to reconnect...');
+        }, 3000); // Reattempt after 3 seconds
+      } else {
+        alert('Unable to reconnect after multiple attempts.');
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
